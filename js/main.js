@@ -1,7 +1,8 @@
 let gl,
   shaderProgram,
   verticies,
-  angle = 0;
+  matrix = mat4.create(),
+  vertexCount = 30;
 
 initGL();
 createShaders();
@@ -31,11 +32,13 @@ function createShaders() {
 
 function createVerticies() {
 
-  verticies = [
-    -0.9, -0.9, 0.0,
-    0.9, -0.9, 0.0,
-    0.0, 0.9, 0.0
-  ];
+  verticies = [];
+  for (let i = 0; i < vertexCount; i++) {
+    verticies.push(Math.random() * 2 - 1);
+    verticies.push(Math.random() * 2 - 1);
+    verticies.push(Math.random() * 2 - 1);
+  }
+
 
   const buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -55,9 +58,14 @@ function createVerticies() {
 }
 
 function draw() {
-  rotateY(angle += 0.01);
+  mat4.rotateZ(matrix, matrix, 0.01);
+  mat4.rotateY(matrix, matrix, 0.01);
+  mat4.rotateX(matrix, matrix, 0.01);
+  const transformMatrix = gl.getUniformLocation(shaderProgram, 'transformMatrix');
+  gl.uniformMatrix4fv(transformMatrix, false, matrix);
+
   gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 
   requestAnimationFrame(draw);
 }
